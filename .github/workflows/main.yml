@@ -3,11 +3,13 @@ name: Run Tests
 on:
   push:
     branches:
-      - master
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  test:
-    name: Run Unit and Integration Tests
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,15 +20,13 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '11'
+        distribution: 'adopt'
 
     - name: Build with Maven
-      run: mvn -B clean verify
+      run: mvn -B package --file pom.xml
 
-    - name: Upload Test Results
-      uses: actions/upload-artifact@v2
-      with:
-        name: test-results
-        path: target/surefire-reports
+    - name: Run unit tests
+      run: mvn test
 
-    - name: Run Integration Tests
-      run: mvn -B integration-test
+    - name: Run integration tests
+      run: mvn verify -Pintegration-tests
