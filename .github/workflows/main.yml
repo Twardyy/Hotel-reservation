@@ -1,9 +1,9 @@
-name: Run Tests
+name: Java CI
 
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -19,9 +19,6 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
-        server-id: github
-        server-username: ${{ github.actor }}
-        server-password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
