@@ -28,7 +28,7 @@ class roomTest extends UseCase {
         );
 
         //then
-        assertThat(response.getStatusCode(), equalTo(CONFLICT));
+        assertThat(response.getStatusCode(), equalTo(CREATED));
         assertThat(response.getBody(),notNullValue());
         assertThat(response.getBody().roomNumber(), equalTo(roomRequest.roomNumber()));
         assertThat(response.getBody().pricePerNight(), equalTo(roomRequest.pricePerNight()));
