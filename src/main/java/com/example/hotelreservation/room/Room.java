@@ -11,6 +11,7 @@ class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int roomNumber;
+    private double pricePerNight;
     public Room() {
 
     }
@@ -43,7 +44,5 @@ class Room {
     public void setPricePerNight(double pricePerNight) {
         this.pricePerNight = pricePerNight;
     }
-
-    private double pricePerNight;
 
 }
