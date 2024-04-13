@@ -22,7 +22,7 @@ public class RoomController {
         return ResponseEntity.status(CREATED).body(roomService.save(createRoomRequest));
     }
 
-    @GetMapping("/id")
+    @GetMapping("/{id}")
     RoomResponse fetchInformationAboutRoom(@PathVariable Long id) {return roomService.findRoomById(id); }
     private boolean isRoomAlreadyExists(int roomNumber) {
         return roomService.findRoomByRoomNumber(roomNumber).isPresent();
