@@ -21,8 +21,7 @@ public class RoomController {
     @PostMapping
     ResponseEntity<?> addRoom(@RequestBody RoomRequest createRoomRequest) {
         if(isRoomAlreadyExists(createRoomRequest.roomNumber())){
-            return ResponseEntity.status(CONFLICT)
-                    .body("Room with number: " + createRoomRequest.roomNumber() + " was added earlier");
+            return ResponseEntity.status(CONFLICT).build();
         }
 
         return ResponseEntity.status(CREATED).body(roomService.save(createRoomRequest));
