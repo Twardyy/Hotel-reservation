@@ -1,10 +1,7 @@
 package com.example.hotelreservation.room;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -24,6 +21,9 @@ public class RoomController {
 
         return ResponseEntity.status(CREATED).body(roomService.save(createRoomRequest));
     }
+
+    @GetMapping("/id")
+    RoomResponse fetchInformationAboutRoom(@PathVariable Long id) {return roomService.findRoomById(id); }
     private boolean isRoomAlreadyExists(int roomNumber) {
         return roomService.findRoomByRoomNumber(roomNumber).isPresent();
     }

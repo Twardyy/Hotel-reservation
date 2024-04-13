@@ -1,5 +1,6 @@
 package com.example.hotelreservation.room;
 
+import org.mockito.internal.matchers.Null;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,5 +21,11 @@ class RoomService {
     }
     public Optional<Room> findRoomByRoomNumber(int roomNumber) {
         return Optional.ofNullable(roomRepository.findByRoomNumber(roomNumber));
+    }
+
+    public RoomResponse findRoomById(Long id) {
+        return roomRepository.findById(id)
+                .map(roomMapper::roomToRoomResponse)
+                .orElseThrow(null);
     }
 }
