@@ -1,4 +1,4 @@
-name: Maven build and test
+name: Maven build and tests
 
 on:
   push:
