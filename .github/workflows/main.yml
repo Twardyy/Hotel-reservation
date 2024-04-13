@@ -4,12 +4,10 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     steps:
@@ -20,10 +18,10 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '17'
-        distribution: 'temurin'
+        distribution: 'adopt'
+        server-id: github
+        server-username: ${{ github.actor }}
+        server-password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-
-    - name: Run unit tests
-      run: mvn test
