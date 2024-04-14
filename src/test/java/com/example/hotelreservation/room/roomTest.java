@@ -4,12 +4,14 @@ import com.example.hotelreservation.UseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.*;
 import org.springframework.web.ErrorResponse;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.http.HttpMethod.PATCH;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.HttpStatus.*;
 
 class roomTest extends UseCase {
@@ -93,7 +95,7 @@ class roomTest extends UseCase {
 
     @Test
     @DisplayName("Should return 401 not found room")
-    void shouldNotFoundRoom(){
+    void shouldNotFoundRoom() {
         //given
         var id = 200L;
 
@@ -105,5 +107,46 @@ class roomTest extends UseCase {
 
         //then
         assertThat(response.getStatusCode(), equalTo(NOT_FOUND));
+    }
+
+    @Test
+    @DisplayName("Should return 200 and update information in room")
+    void shouldUpdateRoom() {
+        //given
+        var roomToUpdateRequest = new RoomRequest(412,77);
+        var bodytoUpdate = new RoomRequest(413, 89);
+
+        //when
+        var roomResponse = restTemplate.postForEntity(
+                prepareUrl("/room"),
+                roomToUpdateRequest,
+                RoomResponse.class
+        );
+        assertThat(roomResponse.getStatusCode(), equalTo(CREATED));
+
+        var id = roomResponse.getBody().id();
+        var dupa = prepareUrl("/room/" + id);
+        var updateRoomResponse = restTemplate.exchange(
+                prepareUrl("/room/" + id),
+                PATCH,
+                createBody(bodytoUpdate),
+                RoomResponse.class
+        );
+
+
+
+
+
+        //then
+
+        var createdRoom = roomResponse.getBody();
+        assertThat(updateRoomResponse.getStatusCode(),equalTo(OK));
+        assertThat(createdRoom.roomNumber(), equalTo(bodytoUpdate.roomNumber()));
+        assertThat(createdRoom.pricePerNight(), equalTo(bodytoUpdate.pricePerNight()));
+    }
+    private HttpHeaders getHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
     }
 }
