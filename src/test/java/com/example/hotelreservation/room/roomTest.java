@@ -122,10 +122,15 @@ class roomTest extends UseCase {
                 roomToUpdateRequest,
                 RoomResponse.class
         );
-        assertThat(roomResponse.getStatusCode(), equalTo(CREATED));
 
+        //then
+        assertThat(roomResponse.getStatusCode(), equalTo(CREATED));
+        assertThat(roomResponse.getBody().roomNumber(), equalTo(roomToUpdateRequest.roomNumber()));
+        assertThat(roomResponse.getBody().pricePerNight(), equalTo(roomToUpdateRequest.pricePerNight()));
+
+        //when
         var id = roomResponse.getBody().id();
-        var dupa = prepareUrl("/room/" + id);
+
         var updateRoomResponse = restTemplate.exchange(
                 prepareUrl("/room/" + id),
                 PATCH,
@@ -133,20 +138,38 @@ class roomTest extends UseCase {
                 RoomResponse.class
         );
 
+        //then
+        assertThat(updateRoomResponse.getStatusCode(),equalTo(OK));
 
-
-
+        //when
+        var getRoomResponse = restTemplate.getForEntity(
+                prepareUrl("/room/" + id),
+                RoomResponse.class
+        );
 
         //then
-
-        var createdRoom = roomResponse.getBody();
-        assertThat(updateRoomResponse.getStatusCode(),equalTo(OK));
-        assertThat(createdRoom.roomNumber(), equalTo(bodytoUpdate.roomNumber()));
-        assertThat(createdRoom.pricePerNight(), equalTo(bodytoUpdate.pricePerNight()));
+        assertThat(getRoomResponse.getStatusCode(),equalTo(OK));
+        assertThat(getRoomResponse.getBody().roomNumber(), equalTo(bodytoUpdate.roomNumber()));
+        assertThat(getRoomResponse.getBody().pricePerNight(), equalTo(bodytoUpdate.pricePerNight()));
     }
-    private HttpHeaders getHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return headers;
+
+    @Test
+    @DisplayName("Should return 404 not found room to update")
+    void shouldNotUpdateRoom(){
+        //given
+        var wrongId = -2L;
+        var bodytoUpdate = new RoomRequest(1244, 33);
+
+        //when
+        var updateRoomResponse = restTemplate.exchange(
+                prepareUrl("/room/" + wrongId),
+                PATCH,
+                createBody(bodytoUpdate),
+                RoomResponse.class
+        );
+
+        //then
+        assertThat(updateRoomResponse.getStatusCode(),equalTo(NOT_FOUND));
+
     }
 }
