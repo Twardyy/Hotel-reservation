@@ -27,4 +27,18 @@ class RoomService {
     public Optional<RoomResponse> findRoomById(Long id) {
         return roomRepository.findById(id).map(roomMapper::roomToRoomResponse);
     }
+
+    public Optional<RoomResponse> update(Long id, RoomRequest roomRequest) {
+        var oldRoom = roomRepository.findById(id);
+
+        if (oldRoom.isPresent()) {
+            var newRoom = oldRoom.get();
+            newRoom.setRoomNumber(roomRequest.roomNumber());
+            newRoom.setPricePerNight(roomRequest.pricePerNight());
+
+            return Optional.of(roomMapper.roomToRoomResponse(roomRepository.save(newRoom)));
+        }
+
+        return Optional.empty();
+    }
 }
