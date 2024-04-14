@@ -3,6 +3,10 @@ package com.example.hotelreservation.room;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.html.Option;
+
+import java.util.Optional;
+
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
@@ -23,7 +27,9 @@ public class RoomController {
 
     @GetMapping("/{id}")
     ResponseEntity<RoomResponse> fetchInformationAboutRoom(@PathVariable Long id) {
-        return ResponseEntity.status(OK).body(roomService.findRoomById(id));
+        return roomService.findRoomById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
     private boolean isRoomAlreadyExists(int roomNumber) {
         return roomService.findRoomByRoomNumber(roomNumber).isPresent();
