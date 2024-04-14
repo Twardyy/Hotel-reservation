@@ -2,11 +2,6 @@ package com.example.hotelreservation.room;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.swing.text.html.Option;
-
-import java.util.Optional;
-
 import static org.springframework.http.HttpStatus.*;
 
 @RestController

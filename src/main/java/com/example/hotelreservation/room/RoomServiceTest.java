@@ -50,7 +50,7 @@ public class RoomServiceTest {
     @Test
     public void shouldFindRoomByRoomNumber() {
         //given
-        int roomNumber = 106;
+        var roomNumber = 106;
         Room room = new Room(101,30);
 
         when(roomRepository.findByRoomNumber(roomNumber)).thenReturn(room);
@@ -61,5 +61,24 @@ public class RoomServiceTest {
         //given
         assertEquals(Optional.of(room), result);
         verify(roomRepository).findByRoomNumber(roomNumber);
+    }
+
+    @Test
+    public void shouldFindRoomById() {
+        //given
+        Long roomId = 1L;
+        Room room = new Room(101, 150);
+        RoomResponse expectedResponse = new RoomResponse(roomId, 101, 150);
+
+        when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+        when(roomMapper.roomToRoomResponse(room)).thenReturn(expectedResponse);
+
+        //when
+        Optional<RoomResponse> result = roomService.findRoomById(roomId);
+
+        // then
+        assertEquals(Optional.of(expectedResponse), result);
+        verify(roomRepository).findById(roomId);
+        verify(roomMapper).roomToRoomResponse(room);
     }
 }
