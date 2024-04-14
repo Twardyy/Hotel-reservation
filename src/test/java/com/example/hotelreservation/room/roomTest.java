@@ -10,8 +10,7 @@ import org.springframework.web.ErrorResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.*;
 
 class roomTest extends UseCase {
     @Test
@@ -60,5 +59,51 @@ class roomTest extends UseCase {
         assertThat(newRoomResponse.getBody().roomNumber(), equalTo(roomRequest.roomNumber()));
         assertThat(newRoomResponse.getBody().pricePerNight(), equalTo(roomRequest.pricePerNight()));
         assertThat(existingRoomResponse.getStatusCode(), equalTo(CONFLICT));
+    }
+
+    @Test
+    @DisplayName("Should return 200 and find room")
+    void shouldFindRoom() {
+        //given
+        var roomRequest = new RoomRequest(3,34);
+
+        //when
+        var postRoomResponse = restTemplate.postForEntity(
+                prepareUrl("/room"),
+                roomRequest,
+                RoomResponse.class
+        );
+
+        var roomId = postRoomResponse.getBody().id();
+        var getRoomResponse = restTemplate.getForEntity(
+                prepareUrl("/room/" + roomId),
+                RoomResponse.class
+        );
+
+        //then
+        assertThat(postRoomResponse.getStatusCode(), equalTo(CREATED));
+        var createdRoom = postRoomResponse.getBody();
+        assertThat(getRoomResponse.getStatusCode(), equalTo(OK));
+        var fetchenRoom = getRoomResponse.getBody();
+        assertThat(createdRoom.roomNumber(), equalTo(roomRequest.roomNumber()));
+        assertThat(createdRoom.pricePerNight(), equalTo(roomRequest.pricePerNight()));
+        assertThat(createdRoom.roomNumber(), equalTo(fetchenRoom.roomNumber()));
+        assertThat(createdRoom.pricePerNight(), equalTo(fetchenRoom.pricePerNight()));
+    }
+
+    @Test
+    @DisplayName("Should return 401 not found room")
+    void shouldNotFoundRoom(){
+        //given
+        var id = 200L;
+
+        //when
+        var response = restTemplate.getForEntity(
+                prepareUrl("/room/" + id),
+                ErrorResponse.class
+        );
+
+        //then
+        assertThat(response.getStatusCode(), equalTo(NOT_FOUND));
     }
 }
