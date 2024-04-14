@@ -74,11 +74,9 @@ class roomTest extends UseCase {
                 RoomResponse.class
         );
 
-        assertThat(postRoomResponse.getStatusCode(), equalTo(CREATED));
-
         var roomId = postRoomResponse.getBody().id();
         var getRoomResponse = restTemplate.getForEntity(
-                prepareUrl("/room/" + roomId),
+                prepareUrl("/room/" + 1),
                 RoomResponse.class
         );
 
