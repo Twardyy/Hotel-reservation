@@ -80,11 +80,6 @@ class roomTest extends UseCase {
                 RoomResponse.class
         );
 
-        System.out.println("IDDDD: " + roomId);
-
-        System.out.println("posttt: " + postRoomResponse);
-
-        System.out.println("gettt: " + getRoomResponse);
         //then
         assertThat(postRoomResponse.getStatusCode(), equalTo(CREATED));
         var createdRoom = postRoomResponse.getBody();
