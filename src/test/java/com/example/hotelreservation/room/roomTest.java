@@ -76,17 +76,20 @@ class roomTest extends UseCase {
 
         var roomId = postRoomResponse.getBody().id();
         var getRoomResponse = restTemplate.getForEntity(
-                prepareUrl("/room/" + 1),
+                prepareUrl("/room/" + roomId),
                 RoomResponse.class
         );
 
         //then
+
         assertThat(postRoomResponse.getStatusCode(), equalTo(CREATED));
+        var createdRoom = postRoomResponse.getBody();
         assertThat(getRoomResponse.getStatusCode(), equalTo(OK));
-        assertThat(postRoomResponse.getBody().roomNumber(), equalTo(roomRequest.roomNumber()));
-        assertThat(postRoomResponse.getBody().pricePerNight(), equalTo(roomRequest.pricePerNight()));
-        assertThat(postRoomResponse.getBody().roomNumber(), equalTo(getRoomResponse.getBody().roomNumber()));
-        assertThat(postRoomResponse.getBody().pricePerNight(), equalTo(getRoomResponse.getBody().pricePerNight()));
+        var fetchenRoom = getRoomResponse.getBody();
+        assertThat(createdRoom.roomNumber(), equalTo(roomRequest.roomNumber()));
+        assertThat(createdRoom.pricePerNight(), equalTo(roomRequest.pricePerNight()));
+        assertThat(createdRoom.roomNumber(), equalTo(fetchenRoom.roomNumber()));
+        assertThat(createdRoom.pricePerNight(), equalTo(fetchenRoom.pricePerNight()));
     }
 
     @Test
