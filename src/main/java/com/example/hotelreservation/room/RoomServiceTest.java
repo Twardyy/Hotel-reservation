@@ -5,6 +5,8 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 import java.util.Optional;
 
@@ -18,6 +20,9 @@ public class RoomServiceTest {
 
     @Mock
     private RoomMapper roomMapper;
+
+    @Mock
+    private RoomController roomController;
 
     @Mock
     private RoomRepository roomRepository;
@@ -80,5 +85,23 @@ public class RoomServiceTest {
         assertEquals(Optional.of(expectedResponse), result);
         verify(roomRepository).findById(roomId);
         verify(roomMapper).roomToRoomResponse(room);
+    }
+
+    @Test
+    public void shouldUpdateRoom() {
+        //given
+        var id = 1L;
+        var roomRequest = new RoomRequest(543, 12);
+        var roomResponse = new RoomResponse(id, 44, 33);
+
+        when(roomService.update(id,roomRequest)).thenReturn(Optional.of(roomResponse));
+
+        //when
+        var response = roomController.updateRoom(id,roomRequest).getBody();
+
+        //then
+        assertEquals(response,roomResponse);
+        //assertEquals(response.getStatusCode(), HttpStatus.OK);
+        //assertEquals(response.getBody(), roomResponse);
     }
 }
