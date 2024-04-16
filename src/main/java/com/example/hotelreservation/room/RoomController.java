@@ -59,6 +59,14 @@ public class RoomController {
         return ResponseEntity.notFound().build();
     }
 
+    @DeleteMapping("/deleteAll")
+    ResponseEntity<?> removeAll() {
+        var isDeleted = roomService.deleteAllRooms();
+        if(isDeleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
     private boolean isRoomAlreadyExistsByNumberRoom(int roomNumber) {
         return roomService.findRoomByRoomNumber(roomNumber).isPresent();
     }

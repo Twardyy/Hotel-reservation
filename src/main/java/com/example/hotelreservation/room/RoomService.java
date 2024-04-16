@@ -57,4 +57,12 @@ class RoomService {
         }
         return false;
     }
+
+    public boolean deleteAllRooms() {
+        if(!roomRepository.findAll().isEmpty()) {
+            roomRepository.deleteAll();
+            return true;
+        }
+        return false;
+    }
 }
