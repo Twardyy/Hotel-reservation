@@ -1,11 +1,16 @@
 package com.example.hotelreservation.room;
 
 import com.example.hotelreservation.UseCase;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.convert.DataSizeUnit;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
 import org.springframework.web.ErrorResponse;
+
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -170,6 +175,33 @@ class roomTest extends UseCase {
 
         //then
         assertThat(updateRoomResponse.getStatusCode(),equalTo(NOT_FOUND));
+    }
 
+    @Test
+    @DisplayName("Should return 200 and find all rooms")
+    void shouldFindAllRooms(){
+        //given
+        var roomRequest = new RoomRequest(444,90);
+
+        //when
+        var roomResponse = restTemplate.postForEntity(
+                prepareUrl("/room"),
+                roomRequest,
+                RoomResponse.class
+        );
+
+        //then
+        assertThat(roomResponse.getStatusCode(),equalTo(CREATED));
+        assertThat(roomResponse.getBody().roomNumber(),equalTo(roomRequest.roomNumber()));
+        assertThat(roomResponse.getBody().pricePerNight(),equalTo(roomRequest.pricePerNight()));
+
+        //when
+        var response = restTemplate.getForEntity(
+                prepareUrl("/room/rooms"),
+                List.class
+        );
+        //then
+        assertThat(response.getStatusCode(),equalTo(OK));
+        assertThat(response.getBody(),notNullValue());
     }
 }
