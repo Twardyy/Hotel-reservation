@@ -4,12 +4,14 @@ import com.example.hotelreservation.UseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.*;
 import org.springframework.web.ErrorResponse;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.http.HttpMethod.PATCH;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.HttpStatus.*;
 
 class roomTest extends UseCase {
@@ -93,7 +95,7 @@ class roomTest extends UseCase {
 
     @Test
     @DisplayName("Should return 401 not found room")
-    void shouldNotFoundRoom(){
+    void shouldNotFoundRoom() {
         //given
         var id = 200L;
 
@@ -105,5 +107,69 @@ class roomTest extends UseCase {
 
         //then
         assertThat(response.getStatusCode(), equalTo(NOT_FOUND));
+    }
+
+    @Test
+    @DisplayName("Should return 200 and update information in room")
+    void shouldUpdateRoom() {
+        //given
+        var roomToUpdateRequest = new RoomRequest(412,77);
+        var bodytoUpdate = new RoomRequest(413, 89);
+
+        //when
+        var roomResponse = restTemplate.postForEntity(
+                prepareUrl("/room"),
+                roomToUpdateRequest,
+                RoomResponse.class
+        );
+
+        //then
+        assertThat(roomResponse.getStatusCode(), equalTo(CREATED));
+        assertThat(roomResponse.getBody().roomNumber(), equalTo(roomToUpdateRequest.roomNumber()));
+        assertThat(roomResponse.getBody().pricePerNight(), equalTo(roomToUpdateRequest.pricePerNight()));
+
+        //when
+        var id = roomResponse.getBody().id();
+
+        var updateRoomResponse = restTemplate.exchange(
+                prepareUrl("/room/" + id),
+                PATCH,
+                createBody(bodytoUpdate),
+                RoomResponse.class
+        );
+
+        //then
+        assertThat(updateRoomResponse.getStatusCode(),equalTo(OK));
+
+        //when
+        var getRoomResponse = restTemplate.getForEntity(
+                prepareUrl("/room/" + id),
+                RoomResponse.class
+        );
+
+        //then
+        assertThat(getRoomResponse.getStatusCode(),equalTo(OK));
+        assertThat(getRoomResponse.getBody().roomNumber(), equalTo(bodytoUpdate.roomNumber()));
+        assertThat(getRoomResponse.getBody().pricePerNight(), equalTo(bodytoUpdate.pricePerNight()));
+    }
+
+    @Test
+    @DisplayName("Should return 404 not found room to update")
+    void shouldNotUpdateRoom(){
+        //given
+        var wrongId = -2L;
+        var bodytoUpdate = new RoomRequest(1244, 33);
+
+        //when
+        var updateRoomResponse = restTemplate.exchange(
+                prepareUrl("/room/" + wrongId),
+                PATCH,
+                createBody(bodytoUpdate),
+                RoomResponse.class
+        );
+
+        //then
+        assertThat(updateRoomResponse.getStatusCode(),equalTo(NOT_FOUND));
+
     }
 }
