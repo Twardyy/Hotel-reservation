@@ -48,7 +48,15 @@ public class RoomController {
             return ResponseEntity.ok(allRooms);
         }
         return ResponseEntity.badRequest().build();
+    }
 
+    @DeleteMapping("/{id}")
+    ResponseEntity<?> remove(@PathVariable Long id) {
+        var isDeleted = roomService.deleteRoomById(id);
+        if(isDeleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
     private boolean isRoomAlreadyExistsByNumberRoom(int roomNumber) {
         return roomService.findRoomByRoomNumber(roomNumber).isPresent();

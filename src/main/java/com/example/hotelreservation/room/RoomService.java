@@ -49,4 +49,12 @@ class RoomService {
                 .map(roomMapper::roomToRoomResponse)
                 .collect(Collectors.toList());
     }
+
+    public boolean deleteRoomById(Long id) {
+        if(roomRepository.existsById(id)) {
+            roomRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
 }
