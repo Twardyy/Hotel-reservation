@@ -3,6 +3,8 @@ package com.example.hotelreservation.room;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
@@ -37,6 +39,16 @@ public class RoomController {
         return roomService.update(id, roomRequest)
                 .map(roomResponse -> ResponseEntity.ok().body(roomResponse))
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/rooms")
+    ResponseEntity<List<RoomResponse>> fetchAllRooms(){
+        var allRooms = roomService.getAllRooms();
+        if(!allRooms.isEmpty()) {
+            return ResponseEntity.ok(allRooms);
+        }
+        return ResponseEntity.badRequest().build();
+
     }
     private boolean isRoomAlreadyExistsByNumberRoom(int roomNumber) {
         return roomService.findRoomByRoomNumber(roomNumber).isPresent();
