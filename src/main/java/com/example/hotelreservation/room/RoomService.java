@@ -3,7 +3,9 @@ package com.example.hotelreservation.room;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 class RoomService {
@@ -40,5 +42,11 @@ class RoomService {
         }
 
         return Optional.empty();
+    }
+
+    public List<RoomResponse> getAllRooms() {
+        return roomRepository.findAll().stream()
+                .map(roomMapper::roomToRoomResponse)
+                .collect(Collectors.toList());
     }
 }
