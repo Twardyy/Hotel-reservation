@@ -251,4 +251,71 @@ class roomTest extends UseCase {
         //then
         assertThat(response.getStatusCode(),equalTo(NOT_FOUND));
     }
+
+    @Test
+    @DisplayName("Should return 204 and delete all rooms")
+    void shouldDeleteAllRooms() {
+        //given
+        var roomRequest = new RoomRequest(448,21);
+
+        //when
+        var roomResponse = restTemplate.postForEntity(
+                prepareUrl("/room"),
+                roomRequest,
+                RoomResponse.class
+        );
+
+        //then
+        assertThat(roomResponse.getStatusCode(),equalTo(CREATED));
+        assertThat(roomResponse.getBody().roomNumber(),equalTo(roomRequest.roomNumber()));
+        assertThat(roomResponse.getBody().pricePerNight(),equalTo(roomRequest.pricePerNight()));
+
+        //when
+        var respone = restTemplate.exchange(
+                prepareUrl("/room/deleteAll"),
+                DELETE,
+                null,
+                Void.class
+        );
+
+        //then
+        assertThat(respone.getStatusCode(),equalTo(NO_CONTENT));
+    }
+
+    @Test
+    @DisplayName("Should return 404 and not find rooms")
+    void shouldNotFindRooms() {
+        //given
+        var roomRequest = new RoomRequest(867,21);
+
+        //when
+        var addRoomRespone = restTemplate.postForEntity(
+                prepareUrl("/room"),
+                roomRequest,
+                RoomResponse.class
+        );
+
+        //then
+        assertThat(addRoomRespone.getStatusCode(),equalTo(CREATED));
+        assertThat(addRoomRespone.getBody().roomNumber(),equalTo(roomRequest.roomNumber()));
+        assertThat(addRoomRespone.getBody().pricePerNight(),equalTo(roomRequest.pricePerNight()));
+
+        //when
+        var deleteAllRoomsRespone = restTemplate.exchange(
+                prepareUrl("/room/deleteAll"),
+                DELETE,
+                null,
+                Void.class
+        );
+        //then
+        assertThat(deleteAllRoomsRespone.getStatusCode(),equalTo(NO_CONTENT));
+
+        //when
+        var findAllRoomsResponse = restTemplate.getForEntity(
+                prepareUrl("/room/rooms"),
+                Void.class
+        );
+        //then
+        assertThat(findAllRoomsResponse.getStatusCode(),equalTo(NOT_FOUND));
+    }
 }

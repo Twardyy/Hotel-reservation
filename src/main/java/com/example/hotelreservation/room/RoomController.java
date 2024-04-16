@@ -47,7 +47,7 @@ public class RoomController {
         if(!allRooms.isEmpty()) {
             return ResponseEntity.ok(allRooms);
         }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
