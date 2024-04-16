@@ -58,6 +58,7 @@ public class RoomController {
         }
         return ResponseEntity.notFound().build();
     }
+
     private boolean isRoomAlreadyExistsByNumberRoom(int roomNumber) {
         return roomService.findRoomByRoomNumber(roomNumber).isPresent();
     }
