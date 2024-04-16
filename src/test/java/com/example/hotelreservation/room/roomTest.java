@@ -13,10 +13,8 @@ import org.springframework.web.ErrorResponse;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.http.HttpMethod.PATCH;
-import static org.springframework.http.HttpMethod.PUT;
+import static org.hamcrest.Matchers.*;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.HttpStatus.*;
 
 class roomTest extends UseCase {
@@ -203,5 +201,54 @@ class roomTest extends UseCase {
         //then
         assertThat(response.getStatusCode(),equalTo(OK));
         assertThat(response.getBody(),notNullValue());
+    }
+
+    @Test
+    @DisplayName("Should return 204 and delete room")
+    void shouldDeleteRoom() {
+        //given
+        var roomRequest = new RoomRequest(445,77);
+
+        //when
+        var roomResponse = restTemplate.postForEntity(
+                prepareUrl("/room"),
+                roomRequest,
+                RoomResponse.class
+        );
+
+        //then
+        assertThat(roomResponse.getStatusCode(),equalTo(CREATED));
+        assertThat(roomResponse.getBody().roomNumber(),equalTo(roomRequest.roomNumber()));
+        assertThat(roomResponse.getBody().pricePerNight(),equalTo(roomRequest.pricePerNight()));
+
+        //when
+        var id = roomResponse.getBody().id();
+        var respone = restTemplate.exchange(
+                prepareUrl("/room/" + id),
+                DELETE,
+                null,
+                Void.class
+        );
+
+        //then
+        assertThat(respone.getStatusCode(),equalTo(NO_CONTENT));
+    }
+
+    @Test
+    @DisplayName("Should return 404 not found room to delete")
+    void shoudNotDelateRoom() {
+        //given
+        var id = -2L;
+
+        //when
+        var response = restTemplate.exchange(
+                prepareUrl("/room/" + id),
+                DELETE,
+                null,
+                ErrorResponse.class
+        );
+
+        //then
+        assertThat(response.getStatusCode(),equalTo(NOT_FOUND));
     }
 }
