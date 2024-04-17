@@ -3,7 +3,9 @@ package com.example.hotelreservation.reservation;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 class ReservationService {
@@ -44,6 +46,12 @@ class ReservationService {
         }
 
         return Optional.empty();
+    }
+
+    public List<ReservationResponse> getAllReservations() {
+        return reservationRepository.findAll().stream()
+                .map(reservationMapper::reservationToReservationResponse)
+                .collect(Collectors.toList());
     }
 
     public boolean isRoomOccupied(Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
