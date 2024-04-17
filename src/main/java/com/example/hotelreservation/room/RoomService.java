@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-class RoomService {
+public class RoomService {
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
 
