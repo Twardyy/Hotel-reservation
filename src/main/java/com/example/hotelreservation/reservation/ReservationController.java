@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -50,6 +51,15 @@ public class ReservationController {
         return reservationService.update(id,reservationRequest)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/reservations")
+    ResponseEntity<List<ReservationResponse>> fetchAllReservations() {
+        var allReservations = reservationService.getAllReservations();
+        if(!allReservations.isEmpty()) {
+            return ResponseEntity.ok(allReservations);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     private boolean isRequestCorrect(ReservationRequest reservationRequest){
