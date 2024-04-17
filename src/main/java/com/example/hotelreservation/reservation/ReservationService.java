@@ -3,6 +3,7 @@ package com.example.hotelreservation.reservation;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 class ReservationService {
@@ -19,10 +20,14 @@ class ReservationService {
                 reservationRepository.save(reservationMapper.reservationRequestToReservation(reservationRequest)));
     }
 
-    public boolean isRoomOccupied(Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
-        var reservations = reservationRepository.findByRoomIdAndDates(roomId, checkInDate, checkOutDate);
+    public Optional<ReservationResponse> findReservationById(Long id) {
+        return reservationRepository.findById(id).
+                map(reservationMapper::reservationToReservationResponse);
+    }
 
-        return reservations.isEmpty();
+    public boolean isRoomOccupied(Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
+        return reservationRepository.findByRoomIdAndDates(roomId, checkInDate, checkOutDate)
+                .isEmpty();
     }
 
 }

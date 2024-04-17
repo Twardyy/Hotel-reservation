@@ -207,4 +207,84 @@ class reservationTest extends UseCase {
         );
         assertThat(jenniferReservationResponse.getStatusCode(), equalTo(CONFLICT));
     }
+
+    @Test
+    @DisplayName("Should return 200 and get information about reservation")
+    void shoudlGetReservation() {
+        //given
+        var roomRequest = new RoomRequest(21,37);
+
+        //when
+        var roomResponse = restTemplate.postForEntity(
+                prepareUrl("/room"),
+                roomRequest,
+                RoomResponse.class
+        );
+
+        //then
+        assertThat(roomResponse.getStatusCode(), equalTo(CREATED));
+        assertThat(roomResponse.getBody(),notNullValue());
+        assertThat(roomResponse.getBody().roomNumber(), equalTo(roomRequest.roomNumber()));
+        assertThat(roomResponse.getBody().pricePerNight(), equalTo(roomRequest.pricePerNight()));
+
+        //given
+        var reservationRequest = new ReservationRequest(
+                "Sarah",
+                "Wilson",
+                "wilsonnny@example.com",
+                "331554832",
+                "",
+                LocalDate.of(2024, 1, 15),
+                LocalDate.of(2024, 2, 26),
+                roomResponse.getBody().id()
+        );
+
+        //when
+        var postReservationResponse = restTemplate.postForEntity(
+                prepareUrl("/reservation"),
+                reservationRequest,
+                ReservationResponse.class
+        );
+
+        //then
+        assertThat(postReservationResponse.getStatusCode(), equalTo(CREATED));
+        assertThat(postReservationResponse.getBody(),notNullValue());
+        var reservationBody = postReservationResponse.getBody();
+        assertThat(reservationBody.firstName(),equalTo(reservationRequest.firstName()));
+        assertThat(reservationBody.lastName(),equalTo(reservationRequest.lastName()));
+        assertThat(reservationBody.email(),equalTo(reservationRequest.email()));
+        assertThat(reservationBody.number(),equalTo(reservationRequest.number()));
+        assertThat(reservationBody.additionalCaveat(),equalTo(reservationRequest.additionalCaveat()));
+        assertThat(reservationBody.checkInDate(),equalTo(reservationRequest.checkInDate()));
+        assertThat(reservationBody.checkOutDate(),equalTo(reservationRequest.checkOutDate()));
+        assertThat(reservationBody.roomId(),equalTo(reservationRequest.roomId()));
+        assertThat(reservationBody.roomId(),equalTo(roomResponse.getBody().id()));
+
+        //when
+        var reservationId = reservationBody.id();
+        var getReservationResponse = restTemplate.getForEntity(
+                prepareUrl("/reservation/" + reservationId),
+                ReservationResponse.class
+        );
+
+        //then
+        assertThat(getReservationResponse.getStatusCode(),equalTo(OK));
+        assertThat(getReservationResponse.getBody(), equalTo(postReservationResponse.getBody()));
+    }
+
+    @Test
+    @DisplayName("Should return 404 not found reservation")
+    void shouldNotGetReservation() {
+        //given
+        var id = -1L;
+
+        //when
+        var getReservationResponse = restTemplate.getForEntity(
+                prepareUrl("/reservation/" + id),
+                ReservationResponse.class
+        );
+
+        //then
+        assertThat(getReservationResponse.getStatusCode(),equalTo(NOT_FOUND));
+    }
 }
