@@ -2,10 +2,7 @@ package com.example.hotelreservation.reservation;
 
 import com.example.hotelreservation.room.RoomService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
@@ -38,6 +35,13 @@ public class ReservationController {
         }
 
         return ResponseEntity.status(CREATED).body(reservationService.save(createReservationRequest));
+    }
+
+    @GetMapping("/{id}")
+    ResponseEntity<ReservationResponse> fetchInformationAboutReservation(@PathVariable Long id) {
+        return reservationService.findReservationById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     private boolean isRequestCorrect(ReservationRequest reservationRequest){
