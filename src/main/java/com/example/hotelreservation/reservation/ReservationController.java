@@ -44,6 +44,14 @@ public class ReservationController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PatchMapping("/{id}")
+    ResponseEntity<ReservationResponse> updateReservation(
+            @PathVariable Long id, @RequestBody ReservationRequest reservationRequest) {
+        return reservationService.update(id,reservationRequest)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     private boolean isRequestCorrect(ReservationRequest reservationRequest){
         if(reservationRequest.firstName().isEmpty() ||
                 reservationRequest.lastName().isEmpty() ||
