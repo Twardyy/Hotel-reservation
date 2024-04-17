@@ -5,12 +5,14 @@ import com.example.hotelreservation.room.RoomRequest;
 import com.example.hotelreservation.room.RoomResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.web.ErrorResponse;
 
 import java.time.LocalDate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.http.HttpStatus.*;
 
 class reservationTest extends UseCase {
@@ -286,5 +288,133 @@ class reservationTest extends UseCase {
 
         //then
         assertThat(getReservationResponse.getStatusCode(),equalTo(NOT_FOUND));
+    }
+
+    @Test
+    @DisplayName("Should return 200 and update reservation")
+    void shouldUpdateReservation() {
+        //given
+        var roomRequest = new RoomRequest(35,32);
+
+        //when
+        var roomResponse = restTemplate.postForEntity(
+                prepareUrl("/room"),
+                roomRequest,
+                RoomResponse.class
+        );
+
+        //then
+        assertThat(roomResponse.getStatusCode(), equalTo(CREATED));
+        assertThat(roomResponse.getBody(),notNullValue());
+        assertThat(roomResponse.getBody().roomNumber(), equalTo(roomRequest.roomNumber()));
+        assertThat(roomResponse.getBody().pricePerNight(), equalTo(roomRequest.pricePerNight()));
+
+        //given
+        var reservationRequest = new ReservationRequest(
+                "Jon",
+                "Jones",
+                "mjones@example.com",
+                "123456789",
+                "Extra towel",
+                LocalDate.of(2024, 4, 18),
+                LocalDate.of(2024, 4, 20),
+                roomResponse.getBody().id()
+        );
+
+        //when
+        var reservationResponse = restTemplate.postForEntity(
+                prepareUrl("/reservation"),
+                reservationRequest,
+                ReservationResponse.class
+        );
+
+        //then
+        assertThat(reservationResponse.getStatusCode(), equalTo(CREATED));
+        assertThat(reservationResponse.getBody(),notNullValue());
+        var reservationBody = reservationResponse.getBody();
+        assertThat(reservationBody.firstName(),equalTo(reservationRequest.firstName()));
+        assertThat(reservationBody.lastName(),equalTo(reservationRequest.lastName()));
+        assertThat(reservationBody.email(),equalTo(reservationRequest.email()));
+        assertThat(reservationBody.number(),equalTo(reservationRequest.number()));
+        assertThat(reservationBody.additionalCaveat(),equalTo(reservationRequest.additionalCaveat()));
+        assertThat(reservationBody.checkInDate(),equalTo(reservationRequest.checkInDate()));
+        assertThat(reservationBody.checkOutDate(),equalTo(reservationRequest.checkOutDate()));
+        assertThat(reservationBody.roomId(),equalTo(reservationRequest.roomId()));
+        assertThat(reservationBody.roomId(),equalTo(roomResponse.getBody().id()));
+
+        //given
+        var bodyToUpdateRequest = new ReservationRequest(
+                "Sandra",
+                "DEE",
+                "mjones@example.com",
+                "123456789",
+                "Extra towel",
+                LocalDate.of(2024, 4, 18),
+                LocalDate.of(2024, 4, 20),
+                roomResponse.getBody().id()
+        );
+
+        //when
+        var updateReservationResponse = restTemplate.exchange(
+                prepareUrl("/reservation/" + roomResponse.getBody().id()),
+                PATCH,
+                createBody(bodyToUpdateRequest),
+                ReservationResponse.class
+        );
+
+        //then
+        assertThat(updateReservationResponse.getStatusCode(), equalTo(OK));
+        assertThat(updateReservationResponse.getBody(),notNullValue());
+        var updateReservationBody = updateReservationResponse.getBody();
+        assertThat(updateReservationBody.firstName(),equalTo(bodyToUpdateRequest.firstName()));
+        assertThat(updateReservationBody.lastName(),equalTo(bodyToUpdateRequest.lastName()));
+        assertThat(updateReservationBody.email(),equalTo(bodyToUpdateRequest.email()));
+        assertThat(updateReservationBody.number(),equalTo(bodyToUpdateRequest.number()));
+        assertThat(updateReservationBody.additionalCaveat(),equalTo(bodyToUpdateRequest.additionalCaveat()));
+        assertThat(updateReservationBody.checkInDate(),equalTo(bodyToUpdateRequest.checkInDate()));
+        assertThat(updateReservationBody.checkOutDate(),equalTo(bodyToUpdateRequest.checkOutDate()));
+        assertThat(updateReservationBody.roomId(),equalTo(bodyToUpdateRequest.roomId()));
+    }
+
+    @Test
+    @DisplayName("Should return 404 not found reservation")
+    void shouldNotUpdateReservation() {
+        //given
+        var roomRequest = new RoomRequest(33,444);
+
+        //when
+        var roomResponse = restTemplate.postForEntity(
+                prepareUrl("/room"),
+                roomRequest,
+                RoomResponse.class
+        );
+
+        //then
+        assertThat(roomResponse.getStatusCode(), equalTo(CREATED));
+        assertThat(roomResponse.getBody(),notNullValue());
+        assertThat(roomResponse.getBody().roomNumber(), equalTo(roomRequest.roomNumber()));
+        assertThat(roomResponse.getBody().pricePerNight(), equalTo(roomRequest.pricePerNight()));
+
+        //given
+        var id =-2L;
+        var reservationRequest = new ReservationRequest(
+                "Elizabeth",
+                "Taylor",
+                "eliz@example.com",
+                "1112223333",
+                "",
+                LocalDate.of(2025, 12, 14),
+                LocalDate.of(2025, 12, 20),
+                roomResponse.getBody().id()
+        );
+
+        //when
+        var updateReservationResponse = restTemplate.exchange(
+                prepareUrl("/reservation/" + id),
+                PATCH,
+                createBody(reservationRequest),
+                ErrorResponse.class
+        );
+        assertThat(updateReservationResponse.getStatusCode(), equalTo(NOT_FOUND));
     }
 }
