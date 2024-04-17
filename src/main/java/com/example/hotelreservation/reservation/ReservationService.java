@@ -21,7 +21,7 @@ class ReservationService {
 
     public boolean isRoomOccupied(Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
         var reservations = reservationRepository.findByRoomIdAndDates(roomId, checkInDate, checkOutDate);
-        return reservations.isEmpty();
+        return !reservations.isEmpty();
     }
 
 }
